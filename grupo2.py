@@ -42,7 +42,6 @@ def ConsecuenteG3(list): #True si es G3.
         consecuente= len(y[1])
         if consecuente >2:
             if y[1]!="lambda":                      #No se admiten mas de 2 elementos en el consecuente.
-                #diccionario[3][0:0]=[y[0]+":"+y[1]] #Agregar al diccionario el error.
                 global ErrorG3
                 ErrorG3.append(y[0]+":"+y[1])
                 return False 
@@ -73,26 +72,6 @@ def AntecedentesConsecuentesG1(list): #Cantidad simbolos izquierda < cantidad si
 
 def clasificar_gramatica(string):
     derivaciones = crear_derivaciones(string)
-    """if AntecedenteG2G3(derivaciones) is True:
-        if ConsecuenteG3(derivaciones) is True:
-            #es g3
-            print("G3")
-            print(diccionario)
-        else:
-            #es g2
-            print("G2")
-            diccionario[3]=ErrorG3+MensajeG3
-            print(diccionario)
-    else:
-        if AntecedentesConsecuentesG1(derivaciones) is True:
-            #es g1
-            print("G1")
-            diccionario[3]=ErrorG3+MensajeG3
-            diccionario[2]=ErrorG2+MensajeG2
-            print(diccionario)
-        else:
-            #es g0
-            print("G0")"""
     AntecedenteG2G3(derivaciones)
     ConsecuenteG3(derivaciones)
     AntecedentesConsecuentesG1(derivaciones)
@@ -115,6 +94,9 @@ def clasificar_gramatica(string):
 
 #G1 --> "S:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda"
 #clasificar_gramatica("SA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda")
+
+#G0 --> "SAAAA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda"
+#clasificar_gramatica("SAAAA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda")
 
 
 """ EJERCICIO 2 - AUTOMATA DE PILA """
@@ -153,9 +135,7 @@ class AutomataPila:
 
         self.estados = estados
         self.estado_actual = None
-        self.pila=[]
         self.estados_aceptacion = estados_aceptacion
-
 
     def validar_cadena(self, cadena):
         """ Se valida si una determinada cadena puede ser reconocida por el autómata.
@@ -168,48 +148,49 @@ class AutomataPila:
         resultado: bool
             Indica si la cadena pudo se reconocida o no.
         """
+
         self.pila = []
-        self.pila.append('Z0')
-        self.cadena_creada = []
+        self.pila.append('Z0')    #Nueva pila con primer elemento Z0
+        self.cadena_creada = []   #Cadena a comparar con la cadena de entrada
 
         for x in self.estados:
-            self.estado_actual=x
+            self.estado_actual=x    #Establecer primer estado
             break
 
         for x in cadena:
-            for y in list(self.estados[self.estado_actual]):
+            for y in list(self.estados[self.estado_actual]):  #Recorrer las transiciones del estado actual
                 if x == '$': 
                     for z in list(self.estados_aceptacion):
-                        if z == self.estado_actual: 
+                        if z == self.estado_actual: #Si la entrada es $ y el estado actual es de aceptacion
                             self.cadena_creada.append(x)
                             if self.cadena_creada==list(cadena) and self.pila==['Z0']:
                                 return True
                             else:
                                 return False
                 else:
-                    if x == y[0]:   
-                        if y[2] != ['']:
-                            if y[1] != '':
-                                if y[1]==self.pila[-1]:
+                    if x == y[0]:   #Si la entrada es igual al primer elemento de la transicion
+                        if y[2] != ['']: #Si no se apila nada
+                            if y[1] != '': 
+                                if y[1]==self.pila[-1]: #Compara si el elemento es igual al ultimo de la pila
                                     self.cadena_creada.append(x)
                                     self.pila.pop()
                                     for z in y[2]:
                                         self.pila.append(z)
                                     break
-                        else:
+                        else: #Si se apila algo
                             if y[1] != '':
-                                if y[1]==self.pila[-1]:
+                                if y[1]==self.pila[-1]: #Compara si el elemento es igual al ultimo de la pila
                                     self.cadena_creada.append(x)
                                     self.pila.pop()
                             else:
                                 self.cadena_creada.append(x)
-                        if y[3]!=self.estado_actual:
+                        if y[3]!=self.estado_actual: #Cambio de estado
                             self.estado_actual=y[3]
 
 
-
-#EJEMPLO 1 -- Parentesis balanceados
 """
+#EJEMPLO 1 -- Parentesis balanceados
+
 estados={'a': [('(', 'Z0', ['Z0','('], 'a'),('(', '(', ['(', '('], 'a'),(')', '(', [''], 'b')],'b': [(')', '(', [''], 'b'),('$', 'Z0', ['Z0'], 'b')]} 
 estados_aceptacion= ['b']
 
@@ -220,9 +201,9 @@ print (ap.validar_cadena("((()))$")) #T
 print (ap.validar_cadena("((((()))))$")) #T
 print (ap.validar_cadena("((((((()))$")) #F
 """
-
-#EJEMPLO 2 -- Misma cantidad de A que de B
 """
+#EJEMPLO 2 -- Misma cantidad de A que de B
+
 estados={'a': [('a', 'a', ['a','a'], 'a'),('a', 'Z0', ['Z0', 'a'], 'a'),('b', 'a', [''], 'b')],'b': [('b', 'a', [''], 'b'),('$', 'Z0', ['Z0'], 'b')]}
 estados_aceptacion= ['b']
 
@@ -234,9 +215,9 @@ print (ap.validar_cadena("aabb$")) #T
 print (ap.validar_cadena("aaaaaaaaaaaaaaabbbb$")) #F
 print (ap.validar_cadena("abb$")) #F
 """
-
-#EJEMPLO 3 -- Mas cantidad de A que de B -- NO SE PUEDE RESOLVER POR AUTOMATA DE PILA
 """
+#EJEMPLO 3 -- Mas cantidad de A que de B -- NO SE PUEDE RESOLVER POR AUTOMATA DE PILA
+
 estados={'a': [('a', 'b', [''], 'b'),('b', 'Z0', ['Z0', 'b'], 'a'),('b', 'b', ['b','b'], 'a')],'b': [('a', 'b', [''], 'b'),('a', 'Z0', ['Z0'], 'c')],'c': [('a', 'Z0', ['Z0'], 'c'),('$', 'Z0', ['Z0'], 'c')]}
 
 ap = AutomataPila(estados,estados_aceptacion)
@@ -244,9 +225,9 @@ ap = AutomataPila(estados,estados_aceptacion)
 print (ap.validar_cadena("aaab$"))
 print (ap.validar_cadena("baaa$"))
 """
-
-# EJEMPLO 4 -- MISMA CANTIDAD DE A QUE DE C
 """
+# EJEMPLO 4 -- MISMA CANTIDAD DE A QUE DE C
+
 estados={'a': [('a', 'Z0', ['Z0','a'], 'a'),('a', 'a', ['a', 'a'], 'a'),('b','', [''], 'b')],'b': [('b', '', [''], 'b'),('c', 'a', [''], 'c')],'c': [('c', 'a', [''], 'c'),('$', 'Z0', ['Z0'], 'c')]}
 estados_aceptacion= ['c']
 
@@ -257,9 +238,9 @@ print (ap.validar_cadena("abbbbbbbbbbbccccc$")) #F
 print (ap.validar_cadena("aaabbc$")) #F
 print (ap.validar_cadena("abc$")) #T
 """
-
-# EJEMPLO 5 -- C ES EL DOBLE DE A + 1, B SIEMPRE ES 1
 """
+# EJEMPLO 5 -- C ES EL DOBLE DE A + 1, B SIEMPRE ES 1
+
 estados={'a': [('a', 'Z0', ['Z0','a'], 'a'),('a', 'a', ['a','a'], 'a'),('b','', [''], 'b')],'b': [('c', '', [''], 'c')],'c': [('c', 'a', ['c'], 'c'),('c', 'c', [''], 'c'),('$', 'Z0', [''], 'c')]}
 estados_aceptacion= ['c']
 
