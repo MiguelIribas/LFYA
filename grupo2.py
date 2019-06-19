@@ -8,7 +8,7 @@ ErrorG2 = []
 ErrorG1 = []
 MensajeG3=[("No pertenece a ninguna de las formas: NT -> t, NT -> NT t, NT-> t NT")]
 MensajeG2=[("No pertenece a ninguna de las formas: NT -> Combinacion de T NT ")]
-MensajeG1=[("No cumple la condicion de: Antecedente < Consecuente")]
+MensajeG1=[("No cumple las condiciones de: Antecedente < Consecuente, el distinguido deriva en lambda y tiene recursion, un NT deriva en lambda y no es el distinguido")]
 
 diccionario={3:[],2:[],1:[],0:[]}
 
@@ -68,6 +68,16 @@ def AntecedentesConsecuentesG1(list): #Cantidad simbolos izquierda < cantidad si
         if antecedente > consecuente:
             ErrorG1.append(y[0]+":"+y[1])
             return False
+        if y[1]=="lambda":
+            if y[0] != derivaciones[0][0]:
+                ErrorG1.append(y[0]+":"+y[1])
+                return False
+            else:
+                for z in derivaciones:
+                    for j in z[1]:
+                        if j == derivaciones[0][0]:
+                            ErrorG1.append(y[0]+":"+y[1])
+                            return False
     return True
 
 def clasificar_gramatica(string):
@@ -93,7 +103,13 @@ def clasificar_gramatica(string):
 #clasificar_gramatica("S:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:Aa")
 
 #G1 --> "S:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda"
-#clasificar_gramatica("SA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda")
+#clasificar_gramatica("SA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:Aa")
+
+#G1 CON LAMBDA--> "S:lambda\nS:a B\nB:cb"
+#clasificar_gramatica("S:lambda\nS:a B\nB A:cb")
+
+#G1 SIN LAMBDA--> "S:lambda\nS:a B\nB:cb"
+#clasificar_gramatica("S:lambda\nS:a S\nS:Ab\nA B: c c")
 
 #G0 --> "SAAAA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda"
 #clasificar_gramatica("SAAAA:Cba\nS:C\nC:Bc\nB:Cb\nB:b\nA:Ba\nA:lambda")
